@@ -10,6 +10,7 @@ func main() {
 	hand.print()
 	remainingCards.print()
 	fmt.Println(cards.toString())
+	cards.saveToFile("my_cards")
 }
 
 func newCard() string {
