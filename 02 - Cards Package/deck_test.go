@@ -43,3 +43,11 @@ func TestDeal(t *testing.T) {
 		t.Errorf("Expected 11 cards in remainingDeck, got %v", len(remainingDeck))
 	}
 }
+
+func TestShuffle(t *testing.T) {
+	d := newDeck()
+	d.shuffle()
+	if d[0] == "Ace of Spades" && d[1] == "Two of Spades" && d[16] == "Four of Clubs" {
+		t.Errorf("Shuffle not working, got d1 %v, d2 %v, d16 %v", d[0], d[1], d[16])
+	}
+}
