@@ -11,6 +11,9 @@ func main() {
 	remainingCards.print()
 	fmt.Println(cards.toString())
 	cards.saveToFile("my_cards")
+
+	readed_deck := newDeckFromFile("my_cards")
+	readed_deck.print()
 }
 
 func newCard() string {
