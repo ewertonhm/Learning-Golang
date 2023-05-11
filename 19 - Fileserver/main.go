@@ -5,7 +5,16 @@ import (
 	"log"
 	"net/http"
 	"os"
+
+	auth "github.com/abbot/go-http-auth"
 )
+
+func Secret(user, realm string) string {
+	if user == "ewerton" {
+		return "$1$5vQo5DS8$Lje.C.H27.wKcTey7gMDu1"
+	}
+	return ""
+}
 
 func main() {
 
@@ -16,7 +25,12 @@ func main() {
 
 	httpDir := os.Args[1]
 	addr := ":" + os.Args[2]
-	fs := http.FileServer(http.Dir(httpDir))
+
+	authenticator := auth.NewBasicAuthenticator("files.lab", Secret)
+	http.HandleFunc("/", authenticator.Wrap(func(w http.ResponseWriter, r *auth.AuthenticatedRequest) {
+		http.FileServer(http.Dir(httpDir)).ServeHTTP(w, &r.Request)
+	}))
+
 	fmt.Printf("Server starting at 0.0.0.0%s\n", addr)
-	log.Fatal(http.ListenAndServe(addr, fs))
+	log.Fatal(http.ListenAndServe(addr, nil))
 }
