@@ -1,4 +1,4 @@
-package telegramapi
+package telegram
 
 import (
 	"os"
