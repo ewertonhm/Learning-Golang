@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	telegrambotapi "github.com/go-telegram-bot-api/telegram-bot-api"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type Message struct {
@@ -13,7 +13,7 @@ type Message struct {
 }
 
 func SendTelegram(botApi string, message string) {
-	bot, err := telegrambotapi.NewBotApi(botApi)
+	bot, err := tgbotapi.NewBotAPI(botApi)
 	if err != nil {
 		panic(err)
 	}
@@ -29,7 +29,7 @@ func SendTelegram(botApi string, message string) {
 	}
 
 	m := Message{Text: message, GroupID: integergid}
-	alertText := telegrambotapi.NewMessage(m.GroupID, m.Text)
+	alertText := tgbotapi.NewMessage(m.GroupID, m.Text)
 
 	bot.Debug = true
 	bot.Send(alertText)
