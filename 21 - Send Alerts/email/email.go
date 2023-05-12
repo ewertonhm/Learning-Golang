@@ -1,4 +1,4 @@
-package main
+package email
 
 import (
 	"bytes"
@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func main() {
+func SendEmail(to []string, subject string, servidor string, erro string, horario string, templatePath string) {
 	from := os.Getenv("GMAIL_EMAIL")
 	password := os.Getenv("GMAIL_PASSWORD1") + os.Getenv("GMAIL_PASSWORD2")
 	if len(password) < 2 || len(from) < 1 {
@@ -16,28 +16,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	to := []string{
-		from,
-	}
-
 	smtpHost := "smtp.gmail.com"
 	smtpPort := "587"
 
 	auth := smtp.PlainAuth("", from, password, smtpHost)
-	t, _ := template.ParseFiles("template.html")
+	t, _ := template.ParseFiles(templatePath)
 
 	var body bytes.Buffer
 
 	mimeHeaders := "MIME-versions: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n"
-	body.Write([]byte(fmt.Sprintf("Subject: Alerta: Servidor down\n%s\n\n", mimeHeaders)))
+	body.Write([]byte(fmt.Sprintf("Subject: %s\n%s\n\n", subject, mimeHeaders)))
 	t.Execute(&body, struct {
 		Server  string
 		Error   string
 		Horario string
 	}{
-		Server:  "Google",
-		Error:   "SSL Error",
-		Horario: "11/05/2023 17:25:00",
+		Server:  servidor,
+		Error:   erro,
+		Horario: horario,
 	})
 	err := smtp.SendMail(smtpHost+":"+smtpPort, auth, from, to, body.Bytes())
 	if err != nil {
