@@ -1,6 +1,8 @@
 package sms
 
 import (
+	"alertmanager/utils"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -10,38 +12,66 @@ import (
 	"strings"
 )
 
-func SendSMS(message string, phone string) {
-	endpoint := "https://rest.nexmo.com/sms/json"
-	data := url.Values{}
+type SMSMessage struct {
+	Message string `json:"message"`
+	Phone   string `json:"phone"`
+}
+
+func SendSMS(w http.ResponseWriter, r *http.Request) {
+	var errorMessage utils.ErrorMessage
+
+	endpoint := os.Getenv("SMS_ENDPOINT")
+	if endpoint == "" {
+		log.Fatal("SMS_ENDPOINT not defined")
+		utils.ReturnErrorMessage("SMS_ENDPOINT not defined", http.StatusInternalServerError, w, &errorMessage)
+		return
+	}
 
 	api_key := os.Getenv("NEXMO_API_KEY")
 	if api_key == "" {
-		panic("NEXMO_API_KEY not set")
+		log.Fatal("NEXMO_API_KEY not defined")
+		utils.ReturnErrorMessage("NEXMO_API_KEY not defined", http.StatusInternalServerError, w, &errorMessage)
+		return
 	}
 
 	api_secret := os.Getenv("NEXMO_API_SECRET")
 	if api_secret == "" {
-		panic("NEXMO_API_SECRET not set")
+		log.Fatal("NEXMO_API_SECRET not defined")
+		utils.ReturnErrorMessage("NEXMO_API_SECRET not defined", http.StatusInternalServerError, w, &errorMessage)
+		return
 	}
 
+	message := SMSMessage{}
+	err := json.NewDecoder(r.Body).Decode(&message)
+	if err != nil {
+		log.Printf("Invalid request: %v", err)
+		utils.ReturnErrorMessage("Invalid request", http.StatusBadRequest, w, &errorMessage)
+		return
+	}
+
+	data := url.Values{}
 	data.Set("api_key", api_key)
 	data.Set("api_secret", api_secret)
-	data.Set("to", phone)
+	data.Set("to", message.Phone)
 	data.Set("from", "Nexmo")
-	data.Set("text", message)
+	data.Set("text", message.Message)
 
 	client := &http.Client{}
-	r, err := http.NewRequest("POST", endpoint, strings.NewReader(data.Encode()))
+	resp, err := http.NewRequest("POST", endpoint, strings.NewReader(data.Encode()))
 	if err != nil {
-		panic(err)
+		log.Printf("Erro ao enviar request: %v", err)
+		utils.ReturnErrorMessage("Erro ao enviar request", http.StatusInternalServerError, w, &errorMessage)
+		return
 	}
 
-	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	r.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
+	resp.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	resp.Header.Add("Content-Length", strconv.Itoa(len(data.Encode())))
 
 	res, err := client.Do(r)
 	if err != nil {
-		panic(err)
+		log.Printf("Erro ao enviar request: %v", err)
+		utils.ReturnErrorMessage("Erro ao enviar request", http.StatusInternalServerError, w, &errorMessage)
+		return
 	}
 
 	defer res.Body.Close()
@@ -49,7 +79,9 @@ func SendSMS(message string, phone string) {
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		panic(err)
+		log.Printf("Erro ao enviar request: %v", err)
+		utils.ReturnErrorMessage("Erro ao enviar request", http.StatusInternalServerError, w, &errorMessage)
+		return
 	}
 	log.Println(string(body))
 }

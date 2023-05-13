@@ -2,6 +2,8 @@ package main
 
 import (
 	"alertmanager/email"
+	"alertmanager/slack"
+	"alertmanager/sms"
 	"alertmanager/telegram"
 	"fmt"
 	"log"
@@ -30,8 +32,8 @@ func main() {
 	router.HandleFunc("/health", health).Methods("GET")
 	router.HandleFunc("/telegram", telegram.SendTelegram).Methods("POST")
 	router.HandleFunc("/email", email.SendEmail).Methods("POST")
-	//router.HandleFunc("/slack", slack.SendSlack).Methods("POST")
-	//router.HandleFunc("/sms", sms.SendSms).Methods("POST")
+	router.HandleFunc("/slack", slack.SendSlack).Methods("POST")
+	router.HandleFunc("/sms", sms.SendSMS).Methods("POST")
 
 	log.Fatal(http.ListenAndServe(":8080", router))
 

@@ -258,3 +258,6 @@ created by net/http.(*Server).Serve
 2023/05/12 21:31:38 Message sent: 5
 2023/05/12 21:38:42 Message sent: 6
 2023/05/12 21:38:47 Message sent: 7
+2023/05/13 14:11:34 Starting...
+2023/05/13 14:11:47 Message sent: 8
+2023/05/13 14:11:58 Invalid request: invalid character '}' looking for beginning of object key string
