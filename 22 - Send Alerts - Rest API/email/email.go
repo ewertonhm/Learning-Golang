@@ -1,13 +1,14 @@
 package email
 
 import (
-	"bytes"
-	"fmt"
-	"html/template"
-	"net/smtp"
-	"os"
+	"net/http"
 )
 
+func SendEmail(w http.ResponseWriter, r *http.Request) {
+
+}
+
+/*
 func SendEmail(to []string, subject string, servidor string, erro string, horario string, templatePath string) {
 	from := os.Getenv("GMAIL_EMAIL")
 	password := os.Getenv("GMAIL_PASSWORD1") + os.Getenv("GMAIL_PASSWORD2")
@@ -42,3 +43,4 @@ func SendEmail(to []string, subject string, servidor string, erro string, horari
 	}
 	fmt.Println("Email enviado com sucesso!")
 }
+*/
